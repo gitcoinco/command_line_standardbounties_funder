@@ -2,10 +2,7 @@ from time import time
 from utils import getIPFS
 
 def submitToIPFS(data):
-    print(data)
     payload = buildPayload(data)
-    print(payload)
-
     ipfs = getIPFS()
 
     # adds json-serializable Python dict as a json file to IPFS

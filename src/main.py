@@ -11,22 +11,11 @@ sys.path.insert(0, os.path.abspath('..'))
 from clint.textui import puts, colored, indent
 from clint.arguments import Args
 
-from eth_utils import to_checksum_address
 
-from utils import getWeb3, getBountiesContract, getToken, getWallet
+
+from utils import getWeb3, getBountiesContract, getToken, getWallet, to_checksum_address
 from input import getUserInput
 from ipfs import submitToIPFS
-
-# contract = getBountyContract('mainnet')
-# print(contract.functions.bounties(550).call())
-#
-# import ipfsapi
-# ipfs = ipfsapi.connect('https://ipfs.infura.io', 5001)
-# print(repr(ipfs.cat('QmSZV3GbG98pAegEq5newg9en4ioWmiCvefqjVbT79Kxkr')))
-# exit(0)
-
-# var expire_date = parseInt(expirationTimeDelta) + ((new Date().getTime() / 1000) | 0);
-# var mock_expire_date = 9999999999; // 11/20/2286, https://github.com/Bounties-Network/StandardBounties/issues/25
 
 def main(args):
     network = 'rinkeby'
@@ -45,7 +34,10 @@ def main(args):
         data.update(getUserInput(args))
 
     # 1. post data to ipfs
+    print('Saving data to IPFS... ', end='', flush=True)
     ipfsHash = submitToIPFS(data)
+    puts(colored.green('done.'))
+
 
     # 2. approve token transfer (only if needed)
     if(data.get('tokenAddress') != '0x0000000000000000000000000000000000000000'):
@@ -67,7 +59,7 @@ def main(args):
     # TODO verify there is enough ether to cover gas + bounty
     tx = bountiesContract.functions.issueAndActivateBounty(
         data.get('ethereumAddress'),
-        data.get('expireDate'),
+        9999999999, # 11/20/2286, https://github.com/Bounties-Network/StandardBounties/issues/25
         ipfsHash,
         data.get('amount'),
         '0x0000000000000000000000000000000000000000',
@@ -84,19 +76,23 @@ def main(args):
 
     signed = web3.eth.account.signTransaction(tx, private_key=wallet.get('private_key'))
 
+    # send transaction and wait for receipt
+    print('Funding bounty... ', end='', flush=True)
     old_id = bountiesContract.functions.getNumBounties().call()
-    receipt = web3.eth.waitForTransactionReceipt(web3.eth.sendRawTransaction(signed.rawTransaction)) )
-    new_id = bountiesContract.function.getNumBounties().call()
+    receipt = web3.eth.waitForTransactionReceipt(web3.eth.sendRawTransaction(signed.rawTransaction))
+    new_id = bountiesContract.functions.getNumBounties().call()
+    puts(colored.green('done.'))
 
     if(old_id < new_id):
-        print('Bounty funded successfully!')
+        print('')
+        print(f'Bounty {old_id} funded successfully!')
     else:
         print('Error funding bounty!')
 
 if __name__ == '__main__':
     args = Args()
 
-    with indent(4, quote=''):
-        puts(colored.red('Grouped Arguments: ') + str(dict(args.grouped)))
+    # with indent(4, quote=''):
+    #     puts(colored.red('Grouped Arguments: ') + str(dict(args.grouped)))
 
     main(args)
