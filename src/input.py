@@ -69,4 +69,4 @@ def getUserInput(args):
     decimalDivisor = ''
     # -- END TOKEN INFO #
 
-    return json.dumps(data)
+    return data
