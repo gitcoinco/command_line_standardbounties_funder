@@ -1,5 +1,5 @@
 import json
-from wallet import HDPrivateKey, HDKey
+from utils.wallet import HDPrivateKey, HDKey
 from web3 import HTTPProvider, Web3
 from web3.middleware import geth_poa_middleware # used to connect to rinkeby
 import ipfsapi

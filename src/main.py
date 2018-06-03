@@ -8,24 +8,27 @@ import json
 
 sys.path.insert(0, os.path.abspath('..'))
 
+from math import pow
+
 from clint.textui import puts, colored, indent
 from clint.arguments import Args
 
-
-
 from utils import getWeb3, getBountiesContract, getToken, getWallet, to_checksum_address
+from utils.tokens import name_to_token
+from utils.ipfs import saveToIPFS
+
 from input import getUserInput
-from ipfs import submitToIPFS
 
 def main(args):
-    network = 'rinkeby'
+    network = args.grouped.get('--network')
+    network = network[0] if network else 'rinkeby'
 
     web3 = getWeb3(network)
     wallet = getWallet(0)
     bountiesContract = getBountiesContract(network)
     data = { 'ethereumAddress' : to_checksum_address(wallet.get('address')) }
 
-    # if a json was provided, use that create the bounty, otherwise ask the user for input
+    # if a json was provided, use that create the bounty, otherwise go to interactive mode
     if( args.grouped.get('--json') ):
         # TODO validate json exists
         with open(args.grouped.get('--json')[0]) as f:
@@ -33,9 +36,23 @@ def main(args):
     else:
         data.update(getUserInput(args))
 
+
+    # get token address and decimal places
+    token = name_to_token(data.get('tokenName'))
+
+    if(not token):
+        print(f'Error {data.get("tokenName")} is not supported.')
+        exit(1)
+
+    data.update({
+        'tokenAddress': token.get('addr'),
+        'tokenDecimals': int(token.get('decimals')),
+        'amount': int(data.get('amount') * pow( 10, int(token.get('decimals'))) )
+    })
+
     # 1. post data to ipfs
     print('Saving data to IPFS... ', end='', flush=True)
-    ipfsHash = submitToIPFS(data)
+    ipfsHash = saveToIPFS(data)
     puts(colored.green('done.'))
 
 
@@ -52,7 +69,6 @@ def main(args):
             'gas': 70000,
             'nonce': web3.eth.getTransactionCount(data.get('ethereumAddress')),
         })
-
 
 
     # 3. issue and activate bounty

@@ -1,7 +1,7 @@
 from time import time
 from utils import getIPFS
 
-def submitToIPFS(data):
+def saveToIPFS(data):
     payload = buildPayload(data)
     ipfs = getIPFS()
 
