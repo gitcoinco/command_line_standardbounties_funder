@@ -25,9 +25,9 @@ def buildPayload(data):
         'githubUsername': data.get('github'),
         'notificationEmail': data.get('notification_email'),
         'fullName': data.get('full_name'),
-        'experienceLevel': data.get('experience'),
-        'projectLength': data.get('length'),
-        'bountyType': data.get('type'),
+        'experienceLevel': data.get('experience').capitalize(),
+        'projectLength': data.get('length').capitalize(),
+        'bountyType': data.get('type').capitalize(),
         'tokenName': data.get('token')
     }
 

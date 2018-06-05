@@ -1,7 +1,7 @@
 import click
 import json
 from utils.wallet import Wallet
-from commands.issue_and_activate import issueAndActivateBounty
+from commands.issue_and_activate import handler
 
 
 @click.command()
@@ -18,6 +18,7 @@ from commands.issue_and_activate import issueAndActivateBounty
 @click.option('--token', default='ETH', help='The token that the bounty pays out to.')
 @click.option('--token-address', default='0x0000000000000000000000000000000000000000', help='EIP20 token address the bounty pays out to.')
 
+# metadata
 @click.option('--github', prompt=True, help='Github username associated with bounty.')
 @click.option('--title', prompt=True, help='The bounty\'s title.')
 @click.option('--description', prompt=True, help='A description of what the bounty requires.')
@@ -64,7 +65,7 @@ def main(ctx, **kwargs):
 
     state.update({ 'keywords' : state.get('keywords').split(',') })
 
-    issueAndActivateBounty(state)
+    handler(state)
 
 
 if __name__ == '__main__':

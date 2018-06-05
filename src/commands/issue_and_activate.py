@@ -17,14 +17,11 @@ from utils.contracts import getTokenContract, getBountiesContract
 from utils.token_list import name_to_token
 from utils.ipfs import saveToIPFS
 
-def issueAndActivateBounty(state):
-    web3 = web3_client(state.get('network'))
-    bountiesContract = getBountiesContract(state.get('network'))
-
+def getTokenInfo(state):
     # get token address and decimal places
     token = name_to_token(state.get('token'))
 
-    # user wants to use custom token
+    # user wants to use custom token if address != 0x0
     if(state.get('token_address') != '0x0000000000000000000000000000000000000000'):
         t = getTokenContract(state.get('network'), to_checksum_address(state.get('token_address')))
 
@@ -42,42 +39,40 @@ def issueAndActivateBounty(state):
         print(f'Error {data.get("tokenName")} is not supported.')
         exit(1)
 
-    # update state with new token info
-    state.update({
+    return {
         'token': token.get('name'),
         'token_address': token.get('addr'),
         'token_decimals': int(token.get('decimals')),
         'amount': int(state.get('amount') * pow( 10, int(token.get('decimals'))) )
+    }
+
+def approveTokenTransfer(state):
+    web3 = web3_client(state.get('network'))
+    bountiesContract = getBountiesContract(state.get('network'))
+    t = getTokenContract(state.get('network'), to_checksum_address(state.get('token_address')))
+
+    # TODO verify there are enough tokens for bounty
+    tx = t.functions.approve(
+        to_checksum_address(bountiesContract.address),
+        state.get('amount')
+    ).buildTransaction({
+        'gasPrice': web3.toWei('5', 'gwei'),
+        'gas': 70000,
+        'nonce': web3.eth.getTransactionCount(to_checksum_address(state.get('wallet').get('address'))),
     })
 
-    # post data to ipfs
-    print('Saving data to IPFS... ', end='', flush=True)
-    ipfsHash = saveToIPFS(state)
+    signed = web3.eth.account.signTransaction(tx, private_key=state.get('wallet').get('private_key'))
+
+    # send transaction and wait for receipt
+    print('Approving token usage... ', end='', flush=True)
+    receipt = web3.eth.waitForTransactionReceipt(web3.eth.sendRawTransaction(signed.rawTransaction))
     puts(colored.green('done.'))
 
-    # set address to valid checksum address for transaction
-    state.get('wallet').update({ 'address' : to_checksum_address(state.get('wallet').get('address')) })
+def issueAndActivateBounty(state, ipfsHash):
+    web3 = web3_client(state.get('network'))
+    bountiesContract = getBountiesContract(state.get('network'))
 
-    if(state.get('token_address') != '0x0000000000000000000000000000000000000000'):
-        # TODO verify there are enough tokens for bounty
-        tx = t.functions.approve(
-            to_checksum_address(bountiesContract.address),
-            state.get('amount')
-        ).buildTransaction({
-            'gasPrice': web3.toWei('5', 'gwei'),
-            'gas': 70000,
-            'nonce': web3.eth.getTransactionCount(to_checksum_address(state.get('wallet').get('address'))),
-        })
-
-        signed = web3.eth.account.signTransaction(tx, private_key=state.get('wallet').get('private_key'))
-
-        # send transaction and wait for receipt
-        print('Approving token usage... ', end='', flush=True)
-        receipt = web3.eth.waitForTransactionReceipt(web3.eth.sendRawTransaction(signed.rawTransaction))
-        puts(colored.green('done.'))
-
-
-
+    # build transaction
     tx = bountiesContract.functions.issueAndActivateBounty(
         state.get('wallet').get('address'),
         9999999999, # 11/20/2286, https://github.com/Bounties-Network/StandardBounties/issues/25
@@ -105,8 +100,26 @@ def issueAndActivateBounty(state):
     new_id = bountiesContract.functions.getNumBounties().call()
     puts(colored.green('done.'))
 
-    if(old_id < new_id):
-        print('')
-        print(f'Bounty {old_id} funded successfully!')
-    else:
-        print('Error funding bounty!')
+    return old_id < new_id, old_id
+
+
+def handler(state):
+    # update state with token info
+    state.update(getTokenInfo(state))
+
+    # post data to ipfs
+    print('Saving data to IPFS... ', end='', flush=True)
+    ipfsHash = saveToIPFS(state)
+    puts(colored.green('done.'))
+
+    # set address to valid checksum address for transaction
+    state.get('wallet').update({ 'address' : to_checksum_address(state.get('wallet').get('address')) })
+
+    # approve the token transfer if using EIP20
+    if(state.get('token_address') != '0x0000000000000000000000000000000000000000'):
+        approveTokenTransfer(state)
+
+    # issue and activate bounty
+    result, id = issueAndActivateBounty(state, ipfsHash)
+
+    print(f'Bounty {id} funded successfully!') if result else print('Error funding bounty!')
