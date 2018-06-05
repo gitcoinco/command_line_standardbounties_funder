@@ -1,9 +1,12 @@
 from time import time
-from utils import getIPFS
+import ipfsapi
+
+def ipfs_client():
+    return ipfsapi.connect('https://ipfs.infura.io', 5001)
 
 def saveToIPFS(data):
     payload = buildPayload(data)
-    ipfs = getIPFS()
+    ipfs = ipfs_client()
 
     # adds json-serializable Python dict as a json file to IPFS
     # https://python-ipfs-api.readthedocs.io/en/stable/api_ref.html#ipfsapi.Client.add_json

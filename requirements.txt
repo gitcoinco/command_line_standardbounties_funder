@@ -5,7 +5,4 @@ eth-utils
 pywallet
 rlp==0.6.0
 ethtoken
-
 two1
-pycrypto
-pycryptodome

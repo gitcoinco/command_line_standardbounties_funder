@@ -6,27 +6,33 @@ import sys
 import os
 import json
 
-sys.path.insert(0, os.path.abspath('..'))
-
 from math import pow
-
 from clint.textui import puts, colored, indent
 from clint.arguments import Args
 
-from utils import getWeb3, getBountiesContract, getToken, getWallet, to_checksum_address
+from utils.wallet import Wallet
+from utils.config import web3_client, getBountiesContract, getTokenContract, to_checksum_address
 from utils.tokens import name_to_token
 from utils.ipfs import saveToIPFS
 
 from input import getUserInput
 
+sys.path.insert(0, os.path.abspath('..'))
+
 def main(args):
+    # determine the network that the bounty will be funded on
     network = args.grouped.get('--network')
     network = network[0] if network else 'rinkeby'
 
-    web3 = getWeb3(network)
-    wallet = getWallet(0)
+    # get web3 client and reference to StandardBounties contract
+    web3 = web3_client(network)
     bountiesContract = getBountiesContract(network)
-    data = { 'ethereumAddress' : to_checksum_address(wallet.get('address')) }
+
+    # TODO accept child wallets
+    # load wallet from mnemonic for specified child
+    wallet = Wallet.from_json('secrets.json', 0)
+
+    data = { 'ethereumAddress' : to_checksum_address(wallet.address) }
 
     # if a json was provided, use that create the bounty, otherwise go to interactive mode
     if( args.grouped.get('--json') ):
@@ -90,7 +96,7 @@ def main(args):
         'nonce': web3.eth.getTransactionCount(data.get('ethereumAddress'))
     })
 
-    signed = web3.eth.account.signTransaction(tx, private_key=wallet.get('private_key'))
+    signed = web3.eth.account.signTransaction(tx, private_key=wallet.private_key)
 
     # send transaction and wait for receipt
     print('Funding bounty... ', end='', flush=True)
@@ -107,8 +113,4 @@ def main(args):
 
 if __name__ == '__main__':
     args = Args()
-
-    # with indent(4, quote=''):
-    #     puts(colored.red('Grouped Arguments: ') + str(dict(args.grouped)))
-
     main(args)
