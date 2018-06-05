@@ -14,21 +14,21 @@ def saveToIPFS(data):
 
 def buildPayload(data):
     privacy_preferences = {
-        'show_email_publicly': data.get('showEmailPublicly'),
-        'show_name_publicly': data.get('showNamePublicly')
+        'show_email_publicly': data.get('show_email'),
+        'show_name_publicly': data.get('show_name')
     }
 
     metadata = {
         'issueTitle': data.get('title'),
         'issueDescription': data.get('description'),
         'issueKeywords': data.get('keywords'),
-        'githubUsername': data.get('githubUsername'),
-        'notificationEmail': data.get('notificationEmail'),
-        'fullName': data.get('fullName'),
-        'experienceLevel': data.get('experienceLevel'),
-        'projectLength': data.get('projectLength'),
-        'bountyType': data.get('bountyType'),
-        'tokenName': data.get('tokenName')
+        'githubUsername': data.get('github'),
+        'notificationEmail': data.get('notification_email'),
+        'fullName': data.get('full_name'),
+        'experienceLevel': data.get('experience'),
+        'projectLength': data.get('length'),
+        'bountyType': data.get('type'),
+        'tokenName': data.get('token')
     }
 
     payload = {
@@ -42,20 +42,20 @@ def buildPayload(data):
                 'name': metadata.get('fullName'),
                 'email': metadata.get('notificationEmail'),
                 'githubUsername': metadata.get('githubUsername'),
-                'address': data.get('ethereumAddress')
+                'address': data.get('wallet').get('address')
             },
 
             'privacy_preferences': privacy_preferences,
             'funders': [],
             'categories': metadata.get('issueKeywords'),
             'created': int(time()),
-            'webReferenceURL': data.get('issueURL'),
+            'webReferenceURL': data.get('url'),
 
             # optional fields
             'metadata': metadata,
-            'tokenName': data.get('tokenName'),
-            'tokenAddress': data.get('tokenAddress'),
-            'expire_date': data.get('expireDate')
+            'tokenName': data.get('token'),
+            'tokenAddress': data.get('token_address'),
+            'expire_date': 9999999999, # 11/20/2286, https://github.com/Bounties-Network/StandardBounties/issues/25
             },
 
             'meta': {

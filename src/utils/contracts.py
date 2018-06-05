@@ -1,21 +1,8 @@
 import json
-from web3 import HTTPProvider, Web3
-from web3.middleware import geth_poa_middleware # used to connect to rinkeby
+
 from eth_utils import to_checksum_address
+from utils.web3 import web3_client, UnsupportedNetworkException
 
-class UnsupportedNetworkException(Exception):
-    pass
-
-def web3_client(network):
-    if network in ['mainnet', 'rinkeby', 'ropsten']:
-        web3 = Web3(HTTPProvider(f'https://{network}.infura.io'))
-
-        if network == 'rinkeby':
-            web3.middleware_stack.inject(geth_poa_middleware, layer=0)
-
-        return web3
-
-    raise UnsupportedNetworkException(network)
 
 def getStandardBountiesContractAddresss(network):
     if network == 'mainnet':

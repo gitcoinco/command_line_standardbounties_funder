@@ -187,9 +187,10 @@ tokens = [
 ]
 
 def name_to_token(name):
-    for token in tokens:
-        if(token['name'].lower() == name.lower()):
-            return token
+    if(name):
+        for token in tokens:
+            if(token['name'].lower() == name.lower()):
+                return token
     return False
 
 def addr_to_token(addr):
