@@ -10,6 +10,7 @@ from commands.issue_and_activate import handler
 @click.option('--network', default='rinkeby', help='Network the bounty will be funded on.')
 @click.option('--secret', default='secrets.json', help='File that stores an HD wallet mnemonic.')
 @click.option('--wallet-child', default=0, help='HD wallet generation.')
+@click.option('--gas-price', default=5, help='Price in gWei paid per unit of gas.')
 
 # required args
 @click.argument('url')

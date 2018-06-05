@@ -17,6 +17,9 @@ from utils.contracts import getTokenContract, getBountiesContract
 from utils.token_list import name_to_token
 from utils.ipfs import saveToIPFS
 
+APPROVE_GAS = 70000
+BOUNTY_GAS = 318730
+
 def getTokenInfo(state):
     # get token address and decimal places
     token = name_to_token(state.get('token'))
@@ -56,8 +59,8 @@ def approveTokenTransfer(state):
         to_checksum_address(bountiesContract.address),
         state.get('amount')
     ).buildTransaction({
-        'gasPrice': web3.toWei('5', 'gwei'),
-        'gas': 70000,
+        'gasPrice': web3.toWei(state.get('gas_price'), 'gwei'),
+        'gas': APPROVE_GAS,
         'nonce': web3.eth.getTransactionCount(to_checksum_address(state.get('wallet').get('address'))),
     })
 
@@ -85,8 +88,8 @@ def issueAndActivateBounty(state, ipfsHash):
     ).buildTransaction({
         'from': state.get('wallet').get('address'),
         'value': state.get('amount') if state.get('token_address') == '0x0000000000000000000000000000000000000000' else 0,
-        'gasPrice': web3.toWei('5', 'gwei'),
-        'gas': 318730,
+        'gasPrice': web3.toWei(state.get('gas_price'), 'gwei'),
+        'gas': BOUNTY_GAS,
         'nonce': web3.eth.getTransactionCount(state.get('wallet').get('address'))
     })
 
@@ -102,10 +105,29 @@ def issueAndActivateBounty(state, ipfsHash):
 
     return old_id < new_id, old_id
 
+def canUserFundBounty(state):
+    web3 = web3_client(state.get('network'))
+
+    if(state.get('token_address') != '0x0000000000000000000000000000000000000000'):
+        t = getTokenContract(state.get('network'), to_checksum_address(state.get('token_address')))
+        token_balance = t.functions.balanceOf(to_checksum_address(state.get('wallet').get('address'))).call()
+
+        if(token_balance < state.get('amount')):
+            return False
+
+    eth_amount = state.get('amount') + BOUNTY_GAS if state.get('token_address') == '0x0000000000000000000000000000000000000000' else BOUNTY_GAS
+    eth_balance = web3.eth.getBalance(to_checksum_address(state.get('wallet').get('address')))
+
+    return eth_balance < eth_amount
 
 def handler(state):
     # update state with token info
     state.update(getTokenInfo(state))
+
+    # make sure user has enough funds for bounty
+    if(not canUserFundBounty(state)):
+        print('Not enough funds to issue bounty!')
+        exit(1)
 
     # post data to ipfs
     print('Saving data to IPFS... ', end='', flush=True)
