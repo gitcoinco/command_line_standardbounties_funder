@@ -54,7 +54,6 @@ def approveTokenTransfer(state):
     bountiesContract = getBountiesContract(state.get('network'))
     t = getTokenContract(state.get('network'), to_checksum_address(state.get('token_address')))
 
-    # TODO verify there are enough tokens for bounty
     tx = t.functions.approve(
         to_checksum_address(bountiesContract.address),
         state.get('amount')
@@ -118,7 +117,7 @@ def canUserFundBounty(state):
     eth_amount = state.get('amount') + BOUNTY_GAS if state.get('token_address') == '0x0000000000000000000000000000000000000000' else BOUNTY_GAS
     eth_balance = web3.eth.getBalance(to_checksum_address(state.get('wallet').get('address')))
 
-    return eth_balance < eth_amount
+    return eth_amount < eth_balance
 
 def handler(state):
     # update state with token info
