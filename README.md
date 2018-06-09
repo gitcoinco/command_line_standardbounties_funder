@@ -19,7 +19,7 @@ For a full list of available options, run the script with the `--help` flag from
 
 The minimum number of parameters needed to get started is just the bounty's corresponding issue URL and the amount you wish to put on the bounty.
 ```
-python3 src/main.py https://github.com/gitcoinco/command_line_standardbounties_funder/issues/1 0.01
+python3 funder/main.py https://github.com/gitcoinco/command_line_standardbounties_funder/issues/1 0.01
 ```
 You should now have an interactive console come up that looks like this:
 
@@ -36,17 +36,17 @@ Type: feature
 Each of the fields from above also has corresponding flags and can be chosen directly from the command line. The following invocation will skip over asking for our Github username since it has already been provided.
 
 ```
-python3 src/main.py https://github.com/gitcoinco/command_line_standardbounties_funder/issues/1 0.01 --github c-o-l-o-r
+python3 funder/cli.py https://github.com/gitcoinco/command_line_standardbounties_funder/issues/1 0.01 --github c-o-l-o-r
 ```
 
 We can do even better though! The following describes a bounty the is for beginner experience levels, will only take a handful of hours to complete, and a feature type.
 
 ```
-python3 src/main.py https://github.com/gitcoinco/command_line_standardbounties_funder/issues/1 0.01 -bhf --github c-o-l-o-r
+python3 funder/cli.py https://github.com/gitcoinco/command_line_standardbounties_funder/issues/1 0.01 -bhf --github c-o-l-o-r
 ```
 
 Tokens can be specified using `--token GIT` where `GIT` is the token's symbol you wish to use (provided it is already in `token_list.py`) or you can use `--token-address` to specify an address of an EIP20 token you wish fund a bounty with.
 
 ```
-python3 src/cli.py a 10.1 -ahf --github c-o-l-o-r --title title --description description --keywords key,word --token-address 0x4354321ef77766e2ec327ce58d3dff8358d46208
+python3 funder/cli.py a 10.1 -ahf --github c-o-l-o-r --title title --description description --keywords key,word --token-address 0x4354321ef77766e2ec327ce58d3dff8358d46208
 ```

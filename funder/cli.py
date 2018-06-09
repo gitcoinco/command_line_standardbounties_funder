@@ -1,30 +1,32 @@
 import click
 import json
-from utils.wallet import Wallet
 from commands.issue_and_activate import handler
+from utils.wallet import Wallet
+import utils.validators as validators
+
 
 # load defaults from json
-with open('src/config/defaults.json') as f:
+with open('funder/config/defaults.json') as f:
     defaults = json.load(f)
 
 @click.command()
 
 # config
-@click.option('--network', default=defaults.get('network'), help='Network the bounty will be funded on.')
-@click.option('--secret', default=defaults.get('secret_file'), help='File that stores an HD wallet mnemonic.')
-@click.option('--wallet-child', default=defaults.get('wallet_child'), help='HD wallet generation.')
-@click.option('--gas-price', default=defaults.get('gas_price'), help='Price in gWei paid per unit of gas.')
-@click.option('--gas-limit', default=defaults.get('gas_limit'), help='Amount of gas to be spent per transaction.')
+@click.option('--network', default=lambda:defaults.get('network'), callback=validators.network, help='Network the bounty will be funded on.')
+@click.option('--secret', default=lambda:defaults.get('secret_file'), callback=validators.secret, help='File that stores an HD wallet mnemonic.')
+@click.option('--wallet-child', default=lambda:defaults.get('wallet_child'), help='HD wallet generation.')
+@click.option('--gas-price', default=lambda:defaults.get('gas_price'), help='Price in gWei paid per unit of gas.')
+@click.option('--gas-limit', default=lambda:defaults.get('gas_limit'), help='Amount of gas to be spent per transaction.')
 
 # required args
-@click.argument('url')
-@click.argument('amount', type=click.FLOAT)
+@click.argument('url', callback=validators.url)
+@click.argument('amount', type=click.FLOAT, callback=validators.amount)
 
-@click.option('--token', default=defaults.get('token_symbol'), help='The token that the bounty pays out to.')
-@click.option('--token-address', default=defaults.get('token_address'), help='EIP20 token address the bounty pays out to.')
+@click.option('--token', default=lambda:defaults.get('token_symbol'), callback=validators.token, help='The token that the bounty pays out to.')
+@click.option('--token-address', default=lambda:defaults.get('token_address'), help='EIP20 token address the bounty pays out to.')
 
 # metadata
-@click.option('--github', default=defaults.get('github'),
+@click.option('--github', default=lambda:defaults.get('github'),
     prompt=True, help='Github username associated with bounty.')
 @click.option('--title', prompt=True, help='The bounty\'s title.')
 @click.option('--description', prompt=True, help='A description of what the bounty requires.')
@@ -36,16 +38,16 @@ with open('src/config/defaults.json') as f:
 @click.option('--type', type=click.Choice(['bug', 'feature', 'security', 'other']),
     prompt=True, help='The type of activity this bounty is funding.')
 
-@click.option('--full-name', default=defaults.get('full_name'), prompt=False, help='')
-@click.option('--notification-email', default=defaults.get('notification_email'), prompt=False, help='')
+@click.option('--full-name', default=lambda:defaults.get('full_name'), prompt=False, help='')
+@click.option('--notification-email', default=lambda:defaults.get('notification_email'), prompt=False, help='')
 
 # privacy
-@click.option('--show-email/--hide-email', default=defaults.get('show_email'))
-@click.option('--show-name/--hide-name', default=defaults.get('show_name'))
+@click.option('--show-email/--hide-email', default=lambda:defaults.get('show_email'))
+@click.option('--show-name/--hide-name', default=lambda:defaults.get('show_name'))
 
 # short hand flags
 # TODO make these arguments hidden when click 7.0 comes out https://github.com/pallets/click/pull/500
-@click.option('-b', 'experience', flag_value='beginner', help='Beginner experience level shortcut.', hidden=True)
+@click.option('-b', 'experience', flag_value='beginner', help='Beginner experience level shortcut.')
 @click.option('-i', 'experience', flag_value='intermediate', help='Intermediate experience level shortcut.')
 @click.option('-a', 'experience', flag_value='advanced', help='Advanced experience level shortcut.')
 
@@ -64,7 +66,10 @@ def main(ctx, **kwargs):
     state = kwargs
 
     # load wallet from mnemonic for specified child
-    wallet = Wallet.from_json(state.get('secret'), state.get('wallet_child'))
+    try:
+        wallet = Wallet.from_json(state.get('secret'), state.get('wallet_child'))
+    except:
+        raise click.UsageError('unable to initialize wallet, ensure that secrets.json is set correctly.')
 
     state.update({ 'wallet': {
         'address': wallet.address,
@@ -72,6 +77,9 @@ def main(ctx, **kwargs):
     }})
 
     state.update({ 'keywords' : state.get('keywords').split(',') })
+
+    # add a little padding
+    print('')
 
     # fund bounty
     handler(state)

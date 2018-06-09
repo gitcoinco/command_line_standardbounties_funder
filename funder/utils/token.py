@@ -1,5 +1,7 @@
+from click import UsageError
 from clint.textui import puts, colored
 from eth_utils import to_checksum_address
+from web3.exceptions import BadFunctionCallOutput
 
 from config.web3 import web3_client
 from config.contracts import getBountiesContract, getTokenContract
@@ -12,7 +14,11 @@ def getTokenInfo(state):
 
     # user wants to use custom token if address != 0x0
     if(state.get('token_address') != '0x0000000000000000000000000000000000000000'):
-        token = getTokenContract(state.get('network'), to_checksum_address(state.get('token_address')))
+
+        try:
+            token = getTokenContract(state.get('network'), to_checksum_address(state.get('token_address')))
+        except BadFunctionCallOutput:
+            raise UsageError('there doesn\'t seem to be a token at that address...')
 
         print('Getting token info... ', end='', flush=True)
 
