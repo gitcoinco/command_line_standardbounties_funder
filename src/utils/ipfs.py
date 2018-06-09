@@ -1,8 +1,5 @@
 from time import time
-import ipfsapi
-
-def ipfs_client():
-    return ipfsapi.connect('https://ipfs.infura.io', 5001)
+from config.ipfs import ipfs_client
 
 def saveToIPFS(data):
     payload = buildPayload(data)

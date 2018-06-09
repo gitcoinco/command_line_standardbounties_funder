@@ -3,38 +3,45 @@ import json
 from utils.wallet import Wallet
 from commands.issue_and_activate import handler
 
+# load defaults from json
+with open('src/config/defaults.json') as f:
+    defaults = json.load(f)
 
 @click.command()
 
 # config
-@click.option('--network', default='rinkeby', help='Network the bounty will be funded on.')
-@click.option('--secret', default='secrets.json', help='File that stores an HD wallet mnemonic.')
-@click.option('--wallet-child', default=0, help='HD wallet generation.')
-@click.option('--gas-price', default=5, help='Price in gWei paid per unit of gas.')
+@click.option('--network', default=defaults.get('network'), help='Network the bounty will be funded on.')
+@click.option('--secret', default=defaults.get('secret_file'), help='File that stores an HD wallet mnemonic.')
+@click.option('--wallet-child', default=defaults.get('wallet_child'), help='HD wallet generation.')
+@click.option('--gas-price', default=defaults.get('gas_price'), help='Price in gWei paid per unit of gas.')
+@click.option('--gas-limit', default=defaults.get('gas_limit'), help='Amount of gas to be spent per transaction.')
 
 # required args
 @click.argument('url')
 @click.argument('amount', type=click.FLOAT)
 
-@click.option('--token', default='ETH', help='The token that the bounty pays out to.')
-@click.option('--token-address', default='0x0000000000000000000000000000000000000000', help='EIP20 token address the bounty pays out to.')
+@click.option('--token', default=defaults.get('token_symbol'), help='The token that the bounty pays out to.')
+@click.option('--token-address', default=defaults.get('token_address'), help='EIP20 token address the bounty pays out to.')
 
 # metadata
-@click.option('--github', prompt=True, help='Github username associated with bounty.')
+@click.option('--github', default=defaults.get('github'),
+    prompt=True, help='Github username associated with bounty.')
 @click.option('--title', prompt=True, help='The bounty\'s title.')
 @click.option('--description', prompt=True, help='A description of what the bounty requires.')
 @click.option('--keywords', prompt=True, help='Comma seperated keywords.')
-@click.option('--experience', type=click.Choice(['beginner', 'intermediate', 'advanced']), prompt=True, help='Level of experience needed to complete this bounty.')
-@click.option('--length', type=click.Choice(['hours', 'days', 'weeks', 'months']), prompt=True, help='Rough estimate on the amount of time needed to complete this bounty.')
-@click.option('--type', type=click.Choice(['bug', 'feature', 'security', 'other']), prompt=True, help='The type of activity this bounty is funding.')
+@click.option('--experience', type=click.Choice(['beginner', 'intermediate', 'advanced']),
+    prompt=True, help='Level of experience needed to complete this bounty.')
+@click.option('--length', type=click.Choice(['hours', 'days', 'weeks', 'months']),
+    prompt=True, help='Rough estimate on the amount of time needed to complete this bounty.')
+@click.option('--type', type=click.Choice(['bug', 'feature', 'security', 'other']),
+    prompt=True, help='The type of activity this bounty is funding.')
 
-# default to empty
-@click.option('--full-name', default='', prompt=False, help='')
-@click.option('--notification-email', default='', prompt=False, help='')
+@click.option('--full-name', default=defaults.get('full_name'), prompt=False, help='')
+@click.option('--notification-email', default=defaults.get('notification_email'), prompt=False, help='')
 
 # privacy
-@click.option('--show-email/--hide-email', default=True)
-@click.option('--show-name/--hide-name', default=True)
+@click.option('--show-email/--hide-email', default=defaults.get('show_email'))
+@click.option('--show-name/--hide-name', default=defaults.get('show_name'))
 
 # short hand flags
 @click.option('-b', 'experience', flag_value='beginner', help='Beginner experience level shortcut.')
@@ -65,9 +72,9 @@ def main(ctx, **kwargs):
 
     state.update({ 'keywords' : state.get('keywords').split(',') })
 
+    # fund bounty
     handler(state)
 
 
 if __name__ == '__main__':
     main()
-# python3 src/cli.py a 1 -ahf --github color --title title --description description --keywords key,word

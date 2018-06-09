@@ -1,7 +1,7 @@
 import json
 
 from eth_utils import to_checksum_address
-from utils.web3 import web3_client, UnsupportedNetworkException
+from config.web3 import web3_client, UnsupportedNetworkException
 
 
 def getStandardBountiesContractAddresss(network):
