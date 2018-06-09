@@ -44,7 +44,8 @@ with open('src/config/defaults.json') as f:
 @click.option('--show-name/--hide-name', default=defaults.get('show_name'))
 
 # short hand flags
-@click.option('-b', 'experience', flag_value='beginner', help='Beginner experience level shortcut.')
+# TODO make these arguments hidden when click 7.0 comes out https://github.com/pallets/click/pull/500
+@click.option('-b', 'experience', flag_value='beginner', help='Beginner experience level shortcut.', hidden=True)
 @click.option('-i', 'experience', flag_value='intermediate', help='Intermediate experience level shortcut.')
 @click.option('-a', 'experience', flag_value='advanced', help='Advanced experience level shortcut.')
 

@@ -3,7 +3,6 @@
 This cli tool is being built for @owocki.
 
 ## Setup
-
 In order to start using the CLI tool you'll need to make a `secrets.json` file in the root directory of this repo with the schema below. Update the `mnemonic` key with the mnemonic you want to use to fund your bounties. You can specify a different location for `secrets.json` using the `--secret` parameter.
 
 ```
@@ -11,6 +10,9 @@ In order to start using the CLI tool you'll need to make a `secrets.json` file i
   "mnemonic" : "candy maple cake sugar pudding cream honey rich smooth crumble sweet treat"
 }
 ```
+
+## Defaults
+In order to make this tool as easy and configurable as possible, many arguments have default values set in the [defaults.json](src/config/defaults.json) file. Inside there, it's possible to set defaults for things like gas price, gas limit, GitHub username, privacy settings, etc.
 
 ## Usage
 For a full list of available options, run the script with the `--help` flag from the command line.
