@@ -45,8 +45,8 @@ We can do even better though! The following describes a bounty the is for beginn
 python3 funder/cli.py https://github.com/gitcoinco/command_line_standardbounties_funder/issues/1 0.01 -bhf --github c-o-l-o-r
 ```
 
-Tokens can be specified using `--token GIT` where `GIT` is the token's symbol you wish to use (provided it is already in `token_list.py`) or you can use `--token-address` to specify an address of an EIP20 token you wish fund a bounty with.
+Tokens can be specified using `--token DAI` where `DAI` is the token's symbol you wish to use (provided it is already in `token_list.py`) or you can use `--token-address` to specify an address of an ERC20 token you wish fund a bounty with.
 
 ```
-python3 funder/cli.py a 10.1 -ahf --github c-o-l-o-r --title title --description description --keywords key,word --token-address 0x4354321ef77766e2ec327ce58d3dff8358d46208
+python3 funder/cli.py https://github.com/gitcoinco/command_line_standardbounties_funder/issues/1 10.1 -ahf --github c-o-l-o-r --title title --description description --keywords key,word --token-address 0x4354321ef77766e2ec327ce58d3dff8358d46208
 ```
