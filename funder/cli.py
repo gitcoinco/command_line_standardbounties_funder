@@ -87,8 +87,6 @@ def main(ctx, **kwargs):
         'private_key': wallet.private_key
     }})
 
-    state.update({ 'keywords' : state.get('keywords').split(',') })
-
     # add a little padding
     print('')
 
