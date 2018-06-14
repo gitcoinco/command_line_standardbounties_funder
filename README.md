@@ -12,14 +12,14 @@ In order to start using the CLI tool you'll need to make a `secrets.json` file i
 ```
 
 ## Defaults
-In order to make this tool as easy and configurable as possible, many arguments have default values set in the [defaults.json](src/config/defaults.json) file. Inside there, it's possible to set defaults for things like gas price, gas limit, GitHub username, privacy settings, etc.
+In order to make this tool as easy and configurable as possible, many arguments have default values set in the [defaults.json](funder/config/defaults.json) file. Inside there, it's possible to set defaults for things like gas price, gas limit, GitHub username, privacy settings, etc.
 
 ## Usage
 For a full list of available options, run the script with the `--help` flag from the command line.
 
 The minimum number of parameters needed to get started is just the bounty's corresponding issue URL and the amount you wish to put on the bounty.
 ```
-python3 funder/main.py https://github.com/gitcoinco/command_line_standardbounties_funder/issues/1 0.01
+python3 funder/cli.py https://github.com/gitcoinco/command_line_standardbounties_funder/issues/1 0.01
 ```
 You should now have an interactive console come up that looks like this:
 
