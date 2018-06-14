@@ -41,7 +41,10 @@ def buildPayload(data):
                 'githubUsername': metadata.get('githubUsername'),
                 'address': data.get('wallet').get('address')
             },
-
+            'schemes': {
+                'project_type': data.get('project_type'),
+                'permission_type': data.get('permission_type')
+            },
             'privacy_preferences': privacy_preferences,
             'funders': [],
             'categories': metadata.get('issueKeywords'),

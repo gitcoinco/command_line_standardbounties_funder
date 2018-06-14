@@ -35,8 +35,19 @@ with open('funder/config/defaults.json') as f:
     prompt=True, help='Level of experience needed to complete this bounty.')
 @click.option('--length', type=click.Choice(['hours', 'days', 'weeks', 'months']),
     prompt=True, help='Rough estimate on the amount of time needed to complete this bounty.')
+
+# would like to make this `--bount-type` but waiting to resolve issue
+# https://github.com/pallets/click/issues/1041
 @click.option('--type', type=click.Choice(['bug', 'feature', 'security', 'other']),
     prompt=True, help='The type of activity this bounty is funding.')
+
+@click.option('--project-type', default=lambda:defaults.get('project_type'),
+    type=click.Choice(['traditional', 'contest', 'cooperative']),
+    prompt=False, help='How other will interact on this bounty.')
+@click.option('--permission-type', default=lambda:defaults.get('permission_type'),
+    type=click.Choice(['permissionless', 'approval']),
+    prompt=False, help='Whether a bounty needs to approve workers.')
+
 
 @click.option('--full-name', default=lambda:defaults.get('full_name'), prompt=False, help='')
 @click.option('--notification-email', default=lambda:defaults.get('notification_email'), prompt=False, help='')

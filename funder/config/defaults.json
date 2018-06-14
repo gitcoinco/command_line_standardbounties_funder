@@ -13,6 +13,9 @@
   "full_name": "Kevin Owocki",
   "notification_email": "ksowocki@gmail.com",
 
+  "project_type": "traditional",
+  "permission_type": "permissionless",
+
   "show_name": true,
   "show_email": true
 }
