@@ -8,6 +8,7 @@ import json
 
 from math import pow
 
+from click import confirm
 from clint.textui import puts, colored
 from eth_utils import to_checksum_address
 
@@ -52,31 +53,58 @@ def issueAndActivateBounty(state, ipfsHash):
 
     return old_id < new_id, old_id
 
-def canUserFundBounty(state):
+def canUserFundBounty(state, ether, tokens=0):
+    # check if user has enough ether
+    # need to account for gas limit regardless, only add amount if bounty is funded using ether
+    amount = state.get('gas_limit')
+
+    if state.get('token_address') == '0x0000000000000000000000000000000000000000':
+        amount += state.get('amount')
+
+    # check if user has enough tokens
+    elif(tokens < state.get('amount')):
+        return False
+
+    return amount < ether
+
+def tokenBalance(state):
     web3 = web3_client(state.get('network'))
     address = to_checksum_address(state.get('wallet').get('address'))
+    token_balance = 0
 
     # if the user is funding the bounty with a token, ensure they have enough tokens
     if(state.get('token_address') != '0x0000000000000000000000000000000000000000'):
         token = getTokenContract(state.get('network'), to_checksum_address(state.get('token_address')))
         token_balance = token.functions.balanceOf(address).call()
 
-        if(token_balance < state.get('amount')):
-            return False
+    return token_balance
 
-    # need to account for gas limit regardless, only add amount if bounty is funded using ether
+def etherBalance(state):
+    web3 = web3_client(state.get('network'))
+    address = to_checksum_address(state.get('wallet').get('address'))
+    return web3.eth.getBalance(address)
 
-    eth_amount = state.get('amount') if state.get('token_address') == '0x0000000000000000000000000000000000000000' else state.get('gas_limit')
-    eth_balance = web3.eth.getBalance(address)
-
-    return eth_amount < eth_balance
 
 def handler(state):
+    print(f'Funding from {state.get("wallet").get("address")}')
+
     # update state with token info
     state.update(getTokenInfo(state))
 
+    ether_balance = etherBalance(state)
+    token_balance = tokenBalance(state)
+
+    if(state.get('token') != 'ETH'):
+        print(f'Token balance: {token_balance * pow(10, -1 * state.get("token_decimals"))}')
+
+    print(f'Ether balance: {ether_balance * pow(10, -18)}')
+
+    if (not confirm('Do you want to continue?')):
+        print('Aborted!\n')
+        exit(1)
+
     # make sure user has enough funds for bounty
-    if(not canUserFundBounty(state)):
+    if(not canUserFundBounty(state, ether_balance, token_balance)):
         print('Not enough funds to issue bounty!')
         exit(1)
 
