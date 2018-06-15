@@ -25,6 +25,22 @@ with open('funder/config/defaults.json') as f:
 @click.option('--token', default=lambda:defaults.get('token_symbol'), callback=validators.token, help='The token that the bounty pays out to.')
 @click.option('--token-address', default=lambda:defaults.get('token_address'), help='EIP20 token address the bounty pays out to.')
 
+# short hand flags
+# TODO make these arguments hidden when click 7.0 comes out https://github.com/pallets/click/pull/500
+@click.option('-b', 'experience', flag_value='beginner', help='Beginner experience level shortcut.')
+@click.option('-i', 'experience', flag_value='intermediate', help='Intermediate experience level shortcut.')
+@click.option('-a', 'experience', flag_value='advanced', help='Advanced experience level shortcut.')
+
+@click.option('-h', 'length', flag_value='hours', help='Hours project length shortcut.')
+@click.option('-d', 'length', flag_value='days', help='Days project length shortcut.')
+@click.option('-w', 'length', flag_value='weeks', help='Weeks project length shortcut.')
+@click.option('-m', 'length', flag_value='months', help='Months project length shortcut.')
+
+#@click.option('-b', 'type', flag_value='bug')
+@click.option('-f', 'type', flag_value='feature', help='Feature bounty type shortcut.')
+@click.option('-s', 'type', flag_value='security', help='Security bounty type shortcut.')
+@click.option('-o', 'type', flag_value='other', help='Other bounty type shortcut.')
+
 # metadata
 @click.option('--github', default=lambda:defaults.get('github'),
     prompt=True, help='Github username associated with bounty.')
@@ -56,21 +72,7 @@ with open('funder/config/defaults.json') as f:
 @click.option('--show-email/--hide-email', default=lambda:defaults.get('show_email'))
 @click.option('--show-name/--hide-name', default=lambda:defaults.get('show_name'))
 
-# short hand flags
-# TODO make these arguments hidden when click 7.0 comes out https://github.com/pallets/click/pull/500
-@click.option('-b', 'experience', flag_value='beginner', help='Beginner experience level shortcut.')
-@click.option('-i', 'experience', flag_value='intermediate', help='Intermediate experience level shortcut.')
-@click.option('-a', 'experience', flag_value='advanced', help='Advanced experience level shortcut.')
-
-@click.option('-h', 'length', flag_value='hours', help='Hours project length shortcut.')
-@click.option('-d', 'length', flag_value='days', help='Days project length shortcut.')
-@click.option('-w', 'length', flag_value='weeks', help='Weeks project length shortcut.')
-@click.option('-m', 'length', flag_value='months', help='Months project length shortcut.')
-
-#@click.option('-b', 'type', flag_value='bug')
-@click.option('-f', 'type', flag_value='feature', help='Feature bounty type shortcut.')
-@click.option('-s', 'type', flag_value='security', help='Security bounty type shortcut.')
-@click.option('-o', 'type', flag_value='other', help='Other bounty type shortcut.')
+@click.option('--confirm', 'confirmed', default=lambda:defaults.get('confirmed'), flag_value=True, help='Bypasses address confirmation.')
 
 @click.pass_context
 def main(ctx, **kwargs):

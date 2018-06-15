@@ -99,9 +99,10 @@ def handler(state):
 
     print(f'Ether balance: {ether_balance * pow(10, -18)}')
 
-    if (not confirm('Do you want to continue?')):
-        print('Aborted!\n')
-        exit(1)
+    if(not state.get('confirmed')):
+        if (not confirm('Do you want to continue?')):
+            print('Aborted!\n')
+            exit(1)
 
     # make sure user has enough funds for bounty
     if(not canUserFundBounty(state, ether_balance, token_balance)):

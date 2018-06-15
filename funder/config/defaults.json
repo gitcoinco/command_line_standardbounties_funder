@@ -17,5 +17,7 @@
   "permission_type": "permissionless",
 
   "show_name": true,
-  "show_email": true
+  "show_email": true,
+
+  "confirmed": false
 }
