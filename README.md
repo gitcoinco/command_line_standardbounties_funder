@@ -50,3 +50,9 @@ Tokens can be specified using `--token DAI` where `DAI` is the token's symbol yo
 ```
 python3 funder/cli.py https://github.com/gitcoinco/command_line_standardbounties_funder/issues/1 10.1 -ahf --github c-o-l-o-r --title title --description description --keywords key,word --token-address 0x4354321ef77766e2ec327ce58d3dff8358d46208
 ```
+
+If you want to bypass the address confirmation, you can use the `--confirm` flag.
+
+```
+python3 funder/cli.py https://github.com/gitcoinco/command_line_standardbounties_funder/issues/1 0.01 --confirm
+```
