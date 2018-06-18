@@ -1,0 +1,23 @@
+{
+  "network": "rinkeby",
+  "gas_price": 5,
+  "gas_limit": 318730,
+
+  "secret_file": "secrets.json",
+  "wallet_child": 0,
+
+  "token_symbol": "ETH",
+  "token_address": "0x0000000000000000000000000000000000000000",
+
+  "github": "owocki",
+  "full_name": "Kevin Owocki",
+  "notification_email": "ksowocki@gmail.com",
+
+  "project_type": "traditional",
+  "permission_type": "permissionless",
+
+  "show_name": true,
+  "show_email": true,
+
+  "confirmed": false
+}
