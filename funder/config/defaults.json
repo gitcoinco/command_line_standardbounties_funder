@@ -19,5 +19,10 @@
   "show_name": true,
   "show_email": true,
 
-  "confirmed": false
+  "confirmed": false,
+
+  "platform": {
+    "fees_factor": 0.1,
+    "address": "0x00De4B13153673BCAE2616b67bf822500d325Fc3"
+  }
 }

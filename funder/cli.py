@@ -89,6 +89,8 @@ def main(ctx, **kwargs):
         'private_key': wallet.private_key
     }})
 
+    state.update({'platform': defaults.get('platform')})
+
     # add a little padding
     print('')
 

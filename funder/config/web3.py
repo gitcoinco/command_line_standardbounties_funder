@@ -11,7 +11,7 @@ def web3_client(network):
         web3 = Web3(HTTPProvider(f'https://{network}.infura.io'))
 
         if network == 'rinkeby':
-            web3.middleware_stack.inject(geth_poa_middleware, layer=0)
+            web3.middleware_onion.inject(geth_poa_middleware, layer=0)
 
         return web3
 
