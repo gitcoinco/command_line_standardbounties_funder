@@ -10,6 +10,7 @@ In order to start using the CLI tool you'll need to make a `secrets.json` file i
   "mnemonic" : "candy maple cake sugar pudding cream honey rich smooth crumble sweet treat"
 }
 ```
+Create an account in [Infura](https://infura.io). Go to [Infura Dashboard](https://infura.io/dashboard) and create a new project. You can name it whatever you want. Once the project is created, you can see the `PROJECT ID` of the created project. Copy that and assign it to `infura_project_id` present in  `funder/config/web3.py` (line 10) file.
 
 ## Defaults
 In order to make this tool as easy and configurable as possible, many arguments have default values set in the [defaults.json](funder/config/defaults.json) file. Inside there, it's possible to set defaults for things like gas price, gas limit, GitHub username, privacy settings, etc.

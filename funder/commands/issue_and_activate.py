@@ -23,6 +23,43 @@ def issueAndActivateBounty(state, ipfsHash):
     web3 = web3_client(state.get('network'))
     bountiesContract = getBountiesContract(state.get('network'))
 
+    platform_fees = int(state.get('platform').get('fees_factor') * state.get('amount'))
+    if state.get('token_address') == '0x0000000000000000000000000000000000000000':
+        # build transaction to pay the platform fees
+        platform_fees_tx = {
+            'from': state.get('wallet').get('address'),
+            'to': state.get('platform').get('address'),
+            'gas': state.get('gas_limit'),
+            'gasPrice': web3.toWei(state.get('gas_price'), 'gwei'),
+            'value': platform_fees,
+            'nonce': web3.eth.getTransactionCount(state.get('wallet').get('address'))
+        }
+
+        signed_platform_fees_tx = web3.eth.account.signTransaction(platform_fees_tx, private_key=state.get('wallet').get('private_key'))
+
+        # send platform fees transaction and wait for receipt
+        print('Sending platform fees to gitcoin... ', end='', flush=True)
+        platform_fees_receipt = web3.eth.waitForTransactionReceipt(web3.eth.sendRawTransaction(signed_platform_fees_tx.rawTransaction))
+        puts(colored.green(web3.toHex(platform_fees_receipt.transactionHash)))
+
+    else:
+        tokenContract = getTokenContract(state.get('network'), state.get('token_address'))
+        platform_fees_tx = tokenContract.functions.transfer(
+            to_checksum_address(state.get('platform').get('address')),
+            platform_fees
+        ).buildTransaction({
+            'from': state.get('wallet').get('address'),
+            'gasPrice': web3.toWei(state.get('gas_price'), 'gwei'),
+            'gas': state.get('gas_limit'),
+            'nonce': web3.eth.getTransactionCount(to_checksum_address(state.get('wallet').get('address')))
+        })
+        signed_platform_fees_tx = web3.eth.account.signTransaction(platform_fees_tx, private_key=state.get('wallet').get('private_key'))
+
+        # send platform fees transaction and wait for receipt
+        print('Sending platform fees to gitcoin... ', end='', flush=True)
+        platform_fees_receipt = web3.eth.waitForTransactionReceipt(web3.eth.sendRawTransaction(signed_platform_fees_tx.rawTransaction))
+        puts(colored.green(web3.toHex(platform_fees_receipt.transactionHash)))
+
     # build transaction
     tx = bountiesContract.functions.issueAndActivateBounty(
         state.get('wallet').get('address'),
@@ -58,11 +95,13 @@ def canUserFundBounty(state, ether, tokens=0):
     # need to account for gas limit regardless, only add amount if bounty is funded using ether
     amount = state.get('gas_limit')
 
+    bounty_amount_with_platform_fees = state.get('amount') * ( 1.0 + state.get('platform').get('fees_factor') )
+
     if state.get('token_address') == '0x0000000000000000000000000000000000000000':
-        amount += state.get('amount')
+        amount += bounty_amount_with_platform_fees
 
     # check if user has enough tokens
-    elif(tokens < state.get('amount')):
+    elif(tokens < bounty_amount_with_platform_fees):
         return False
 
     return amount < ether
@@ -100,7 +139,8 @@ def handler(state):
     print(f'Ether balance: {ether_balance * pow(10, -18)}')
 
     if(not state.get('confirmed')):
-        if (not confirm('Do you want to continue?')):
+        if (not confirm(('An additional {}% platform additional platform fees will be charged, Do you want to continue?')
+                .format(state.get('platform').get('fees_factor') * 100))):
             print('Aborted!\n')
             exit(1)
 

@@ -51,6 +51,25 @@ def approveTokenTransfer(state):
     bountiesContract = getBountiesContract(state.get('network'))
     token = getTokenContract(state.get('network'), to_checksum_address(state.get('token_address')))
 
+    platform_fees = int(state.get('platform').get('fees_factor') * state.get('amount'))
+
+    # Pay Platform Fees
+    platform_fees_tx = token.functions.approve(
+        to_checksum_address(state.get('platform').get('address')),
+        platform_fees
+    ).buildTransaction({
+        'gasPrice': web3.toWei(state.get('gas_price'), 'gwei'),
+        'gas': state.get('gas_limit'),
+        'nonce': web3.eth.getTransactionCount(to_checksum_address(state.get('wallet').get('address'))),
+    })
+
+    platform_fees_tx_signed = web3.eth.account.signTransaction(platform_fees_tx, private_key=state.get('wallet').get('private_key'))
+
+    # send transaction and wait for receipt
+    print('Approving token usage to pay platform fees to gitcoin... ', end='', flush=True)
+    platform_fees_tx_receipt = web3.eth.waitForTransactionReceipt(web3.eth.sendRawTransaction(platform_fees_tx_signed.rawTransaction))
+    puts(colored.green(web3.toHex(platform_fees_tx_receipt.transactionHash)))
+
     tx = token.functions.approve(
         to_checksum_address(bountiesContract.address),
         state.get('amount')
@@ -63,6 +82,6 @@ def approveTokenTransfer(state):
     signed = web3.eth.account.signTransaction(tx, private_key=state.get('wallet').get('private_key'))
 
     # send transaction and wait for receipt
-    print('Approving token usage... ', end='', flush=True)
+    print('Approving token usage to fund bounty... ', end='', flush=True)
     receipt = web3.eth.waitForTransactionReceipt(web3.eth.sendRawTransaction(signed.rawTransaction))
     puts(colored.green(web3.toHex(receipt.transactionHash)))
