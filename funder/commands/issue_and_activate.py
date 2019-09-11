@@ -44,7 +44,7 @@ def issueAndActivateBounty(state, ipfsHash):
 
     else:
         tokenContract = getTokenContract(state.get('network'), state.get('token_address'))
-        platform_fees_tx = tokenContract.transfer(
+        platform_fees_tx = tokenContract.functions.transfer(
             to_checksum_address(state.get('platform').get('address')),
             platform_fees
         ).buildTransaction({
@@ -93,8 +93,7 @@ def issueAndActivateBounty(state, ipfsHash):
 def canUserFundBounty(state, ether, tokens=0):
     # check if user has enough ether
     # need to account for gas limit regardless, only add amount if bounty is funded using ether
-    # need to do two transactions, one to the bountiesNetwork and other as platform fees to gitcoin
-    amount = 2 * state.get('gas_limit')
+    amount = state.get('gas_limit')
 
     bounty_amount_with_platform_fees = state.get('amount') * ( 1.0 + state.get('platform').get('fees_factor') )
 

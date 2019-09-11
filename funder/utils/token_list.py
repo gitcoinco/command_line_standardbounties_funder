@@ -184,6 +184,10 @@ tokens = [
     {"addr": "0x58b6a8a3302369daec383334672404ee733ab239", "name": "LPT", "decimals": 18},
     {'addr': '0x09617f6fd6cf8a71278ec86e23bbab29c04353a7', 'name': 'ULT', 'decimals': 18},
     {'addr': '0x4CEdA7906a5Ed2179785Cd3A40A69ee8bc99C466', 'name': 'AION', 'decimals': 18},
+    {'addr': '0xfab46e002bbf0b4509813474841e0716e6730136', 'name': 'FAU', 'decimals': 18},
+    {'addr': '0x583cbbb8a8443b38abcc0c956bece47340ea1367', 'name': 'BOKKY', 'decimals': 18},
+    {'addr': '0xaFF4481D10270F50f203E0763e2597776068CBc5', 'name': 'WEENUS', 'decimals': 18},
+    
 ]
 
 def name_to_token(name):
